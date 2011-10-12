@@ -82,7 +82,6 @@
 
 				// Bind the mouse events to the panme div.
 				panme.bind({
-
 					mousedown: function(e){
 						e.preventDefault();
 
@@ -95,9 +94,7 @@
 						options.startX = 0;
 						options.startY = 0;
 					},
-
 					mousemove: doPanMovement,
-
 					mouseup: function(e){
 						doPanMovement(e);
 
@@ -105,9 +102,12 @@
 
 						position.prev.x = position.now.x;
 						position.prev.y = position.now.y;
-					}
 
+						if(typeof options.release === 'function') options.release(getPosition());
+					}
 				});
+
+				if(typeof options.start === 'function') options.start(getPosition());
 
 			}
 
@@ -164,6 +164,25 @@
 
 			}
 
+			/**
+			 * getPosition
+			 *
+			 * Returns an object of positions, { x1, y1, x2, y2 }
+			 * Note that this position is not the offset on the background but the actual position of the top-left to bottom-right
+			 * points. Useful for running through a cropping script.
+			 */
+			function getPosition(){
+				var	position 	= panme.css('background-position').split(' '),
+					offsets		= {
+						x1 : parseFloat(position[0].replace('px', '')) * -1,
+						y1 : parseFloat(position[1].replace('px', '')) * -1,
+						x2 : parseFloat(position[0].replace('px', '')) * -1 + panme.width(),
+						y2 : parseFloat(position[1].replace('px', '')) * -1 + panme.height()
+					};
+
+				return offsets;
+			}
+
 		});
 
 		// Return the panme div.
@@ -175,7 +194,9 @@
 		width	: 500,
 		height	: 500,
 		startX	: 0,
-		startY	: 0
+		startY	: 0,
+		start	: function(position){},
+		release	: function(position){}
 	};
 
 })(jQuery);
